@@ -58,20 +58,19 @@ Upon clicking the button, we set `showPollCreation` to true.
 `components/Poll.tsx`:
 
 ```tsx
-import { useState } from "react";
-import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
+import { useMemo, useState} from "react";
+import { Web3Provider} from "@ethersproject/providers";
 import { CreateButton } from "@waku/vote-poll-sdk-react-components";
 import { Theme } from "@waku/vote-poll-sdk-react-components/dist/esm/src/style/themes";
 
 type PollProps = {
-  signer: JsonRpcSigner | undefined;
+  account: string | null | undefined;
   theme: Theme;
 };
 
-export function Poll({ signer, theme }: PollProps) {
+export function Poll({ account, theme }: PollProps) {
   const [showPollCreation, setShowPollCreation] = useState(false);
-
-  const disabled = !signer;
+    const disabled = useMemo(() => !account, [account])
 
   return (
     <Wrapper>
@@ -92,23 +91,13 @@ export function Poll({ signer, theme }: PollProps) {
 }
 ```
 
-Now update the `PollPage` component to render the new `Poll` component:
+Now update the `MainPage` component to render the new `Poll` component:
 
 `index.tsx`:
 
 ```tsx
-export function PollPage() {
-  const { account, library, activateBrowserWallet, deactivate } = useEthers();
-  const [signer, setSigner] = useState<undefined | JsonRpcSigner>(undefined);
-
-  useEffect(() => {
-    if (account) {
-      setSigner(library?.getSigner());
-    } else {
-      // Deactivate signer if signed out
-      setSigner(undefined);
-    }
-  }, [account]);
+export function MainPage() {
+    const { activate, deactivate, account, provider } = useWeb3Connect(SUPPORTED_CHAIN_ID)
 
   return (
     <div>
@@ -131,5 +120,5 @@ Now, you have a button:
 
 ![Create a poll button](/assets/poll_sdk/create-poll-button.png)
 
-{{< button relref="./02_connect_wallet"  >}}Back{{< /button >}}
-{{< button relref="./04_poll_creation"  >}}Next: Poll Creation Component{{< /button >}}
+{{< button relref="./"  >}}Back{{< /button >}}
+{{< button relref="./02_poll_creation"  >}}Next: Poll Creation Component{{< /button >}}
